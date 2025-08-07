@@ -17,7 +17,7 @@ const Home = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white"
           >
-            Hi, I'm <span className="text-primary-600 dark:text-primary-400">Cenker Arin</span>
+            Hi, I'm <span className="text-primary-600 dark:text-primary-400">Cenker Arın</span>
           </motion.h1>
           
           <motion.p 

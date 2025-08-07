@@ -7,7 +7,7 @@ const About = () => {
     { name: 'Fitness & Health', description: 'Strength training, nutrition, and maintaining a healthy lifestyle' },
     { name: 'Art & Creativity', description: 'Exploring various art forms and creative expression' },
     { name: 'Technology', description: 'Software development, new technologies, and innovation' },
-    { name: 'Philosophy', description: 'Deep thinking about life, consciousness, and human nature' },
+    { name: 'Basketball', description: 'Best 3 and D player in Bostancı' },
   ]
 
   const skills = [

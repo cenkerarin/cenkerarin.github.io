@@ -23,7 +23,7 @@ const Footer = () => {
               GitHub
             </a>
             <a 
-              href="https://linkedin.com/in/cenkerarin" 
+              href="https://linkedin.com/in/cenker-arın" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-gray-600 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 transition-colors"
@@ -31,7 +31,7 @@ const Footer = () => {
               LinkedIn
             </a>
             <a 
-              href="https://twitter.com/cenkerarin" 
+              href="https://x.com/arinmeister" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-gray-600 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 transition-colors"

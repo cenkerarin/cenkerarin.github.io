@@ -1,87 +1,125 @@
+import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
+const RUNWAY_THRESHOLD = 100
+const PADDING = 24
+
 const Home = () => {
+  const noButtonRef = useRef(null)
+  const [noButtonPosition, setNoButtonPosition] = useState(null)
+  const [noButtonSize, setNoButtonSize] = useState(null)
+  const [yesScale, setYesScale] = useState(1)
+  const rafRef = useRef(null)
+
+  // Measure No button once it's in the DOM, then switch to fixed positioning
+  useEffect(() => {
+    if (!noButtonRef.current || noButtonPosition !== null) return
+    const rect = noButtonRef.current.getBoundingClientRect()
+    setNoButtonSize({ w: rect.width, h: rect.height })
+    setNoButtonPosition({ x: rect.left, y: rect.top })
+  }, [noButtonPosition])
+
+  // Move No button away when cursor gets near
+  useEffect(() => {
+    if (noButtonPosition === null || noButtonSize === null) return
+
+    const handleMouseMove = (e) => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      rafRef.current = requestAnimationFrame(() => {
+        const mx = e.clientX
+        const my = e.clientY
+        const cx = noButtonPosition.x + noButtonSize.w / 2
+        const cy = noButtonPosition.y + noButtonSize.h / 2
+        const distance = Math.hypot(mx - cx, my - cy)
+        if (distance >= RUNWAY_THRESHOLD) return
+
+        // Push the button away from the cursor along the direction cursor→center
+        const dx = cx - mx
+        const dy = cy - my
+        const len = Math.hypot(dx, dy) || 1
+        const ux = dx / len
+        const uy = dy / len
+        const escapeDistance = RUNWAY_THRESHOLD + 80
+        const newCx = mx + ux * escapeDistance
+        const newCy = my + uy * escapeDistance
+        let newX = newCx - noButtonSize.w / 2
+        let newY = newCy - noButtonSize.h / 2
+        newX = Math.max(PADDING, Math.min(window.innerWidth - noButtonSize.w - PADDING, newX))
+        newY = Math.max(PADDING, Math.min(window.innerHeight - noButtonSize.h - PADDING, newY))
+        setNoButtonPosition({ x: newX, y: newY })
+        setYesScale((prev) => prev + 0.12)
+        rafRef.current = null
+      })
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
+  }, [noButtonPosition, noButtonSize])
+
   return (
-    <div className="container-custom py-16">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-b from-rose-50 to-pink-50 dark:from-gray-900 dark:to-rose-950">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-3xl mx-auto text-center space-y-8"
+        className="text-center space-y-10"
       >
-        <div className="space-y-4">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white"
+        <h1 className="text-4xl md:text-6xl font-bold text-rose-800 dark:text-rose-200">
+          Size sevgilim demek istiyorum Selin Hanım
+        </h1>
+
+        <div className="flex flex-row gap-4 justify-center items-center flex-wrap">
+          <motion.div
+            animate={{ scale: yesScale }}
+            transition={{ type: 'spring', stiffness: 260, damping: 20 }}
           >
-            Hi, I'm <span className="text-primary-600 dark:text-primary-400">Cenker Arın</span>
-          </motion.h1>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl md:text-2xl text-gray-600 dark:text-gray-300"
-          >
-            AI Researcher • Content Creator • Polymath in the Making
-          </motion.p>
+            <Link
+              to="/yes"
+              className="inline-flex items-center px-6 py-3 text-lg font-medium rounded-lg text-white bg-rose-500 hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors"
+            >
+              Demelisin
+            </Link>
+          </motion.div>
+
+          {noButtonPosition === null ? (
+            <button
+              ref={noButtonRef}
+              type="button"
+              className="inline-flex items-center px-6 py-3 text-lg font-medium rounded-lg border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-default"
+              onClick={(e) => e.preventDefault()}
+            >
+              hayır.
+            </button>
+          ) : (
+            <>
+              <div
+                className="invisible inline-flex items-center px-6 py-3 text-lg font-medium rounded-lg border-2 border-transparent"
+                style={{ width: noButtonSize?.w, height: noButtonSize?.h }}
+                aria-hidden
+              />
+              <motion.button
+                type="button"
+                className="fixed inline-flex items-center px-6 py-3 text-lg font-medium rounded-lg border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-default z-10"
+                style={{
+                  left: noButtonPosition.x,
+                  top: noButtonPosition.y,
+                }}
+                initial={false}
+                animate={{ left: noButtonPosition.x, top: noButtonPosition.y }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                onClick={(e) => e.preventDefault()}
+              >
+                hayır.
+              </motion.button>
+            </>
+          )}
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed"
-        >
-          <p className="mb-6">
-            I'm passionate about artificial intelligence, machine learning, and the intersection of technology with human creativity. 
-            Currently focused on NLP, LLMs, and building systems that can understand and generate human language.
-          </p>
-          <p>
-            When I'm not coding or researching, you'll find me learning French, working out, exploring art, 
-            or diving into new domains that pique my curiosity.
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center pt-8"
-        >
-          <Link to="/about" className="btn-primary">
-            Learn More About Me
-          </Link>
-          <Link to="/notes" className="btn-secondary">
-            Browse My Notes
-          </Link>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="pt-12 grid grid-cols-1 md:grid-cols-3 gap-6"
-        >
-          <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-primary-600 dark:text-primary-400 mb-2">AI Research</div>
-            <p className="text-gray-600 dark:text-gray-400">NLP, ML, LLMs, and beyond</p>
-          </div>
-          <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-primary-600 dark:text-primary-400 mb-2">Content Creation</div>
-            <p className="text-gray-600 dark:text-gray-400">Sharing knowledge and insights</p>
-          </div>
-          <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-primary-600 dark:text-primary-400 mb-2">Polymath</div>
-            <p className="text-gray-600 dark:text-gray-400">Always learning, always growing</p>
-          </div>
-        </motion.div>
       </motion.div>
     </div>
   )
 }
 
-export default Home 
+export default Home
